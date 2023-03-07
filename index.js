@@ -3,9 +3,10 @@ const { prompt } = require("inquirer");
 const { default: Prompt } = require("inquirer/lib/prompts/base");
 const { default: ListPrompt } = require("inquirer/lib/prompts/list");
 const db = require("./db/connection");
+
 //import our object (functions) to make everything more readable and easier to debug
-const { viewAllDepartments } = require('./db/departments')
-const { viewAllEmployees } = require('./db/employees')
+const { viewAllDepartments, addDepartment } = require('./db/departments')
+const { viewAllEmployees, addEmployee } = require('./db/employees')
 const { viewAllRoles } = require('./db/roles')
 
 
@@ -42,12 +43,23 @@ const start = async () => {
         //the viewAllDepartments function returns a promise which needs to be converted to data
             const departments = await viewAllDepartments();
             console.table(departments)
+        break;
         case 'View all employees':
             const employees = await viewAllEmployees();
             console.table(employees)
+        break;
         case 'View all roles':
             const roles = await viewAllRoles();
             console.table(roles)
+        break;
+        case 'Add a department':
+            const newDepartment = await addDepartment();
+            console.table(newDepartment)
+        break;
+        case 'Add an employee':
+            const newEmployee = await addEmployee();
+            console.table(newEmployee)
+        break;
     }
 }
 
