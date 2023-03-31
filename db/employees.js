@@ -13,7 +13,7 @@ async function viewAllEmployees() {
     }
 }
 //ADD EMPLOYEE
-async function addEmployee() {
+const addEmployee = async () => {
     try {
         const roles = await viewAllRoles();
         const employees = await viewAllEmployees();
@@ -61,7 +61,7 @@ async function addEmployee() {
                 ]
             }
         ])
-        await db.query(`INSERT into employee(first_name, last_name, role_id, manager_id) VALUES ("${firstName}", "${lastName}", "${role}, "${manager}") `)
+        await db.query(`INSERT into employee (first_name, last_name, role_id, manager_id) VALUES ("${firstName}", "${lastName}", "${role}", "${manager}") `)
         const newEmployees = await viewAllEmployees()
         return newEmployees
     }catch (err) {
@@ -70,8 +70,47 @@ async function addEmployee() {
     }
 
 //UPDATE EMPLOYEE
+    const updateEmployee = async () => {
+        try {
+            const employees = await db.query(`SELECT * FROM employee`);
+            const roles = await db.query(`SELECT * FROM role`);
+
+            const employeeChoices = employees.map((employee) => ({
+                name: `${employee.first_name} ${employee.last_name}`,
+                value: employee.id,
+            }));
+            const roleChoices = roles.map((role) => ({
+                name: role.title,
+                value: role.id,
+            }));
+
+            const { employeeId, roleId } = await inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'employeeId',
+                    message: 'Select an employee to update:',
+                    choices: employeeChoices,
+                },
+                {
+                    type: 'list',
+                    name: 'roleId',
+                    message: 'Select a new role for the employee:',
+                    choices: roleChoices,
+                },
+            ]);
+
+            await db.query(
+                'UPDATE employee SET role_id = ? WHERE id = ?',
+                [roleId, employeeId]
+            );
+
+            console.log(`Successfully updated employee with ID ${employeeId}.`);
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
 //BONUS: DELETE EMPLOYEE
 
 //Export this as an object that can be used 
-module.exports = { viewAllEmployees, addEmployee }
+module.exports = { viewAllEmployees, addEmployee, updateEmployee }

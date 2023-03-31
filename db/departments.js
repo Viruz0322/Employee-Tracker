@@ -4,8 +4,8 @@ const inquirer = require('inquirer');
 async function viewAllDepartments() {
     try {
         const departments = 
-            await db.promise().query('SELECT * FROM department')
-        return departments[0]
+            await db.query('SELECT * FROM department')
+        return departments
     } catch (err) {
         console.log(err)
     }

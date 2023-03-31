@@ -6,8 +6,8 @@ const db = require("./db/connection");
 
 //import our object (functions) to make everything more readable and easier to debug
 const { viewAllDepartments, addDepartment } = require('./db/departments')
-const { viewAllEmployees, addEmployee } = require('./db/employees')
-const { viewAllRoles } = require('./db/roles')
+const { viewAllEmployees, addEmployee, updateEmployee } = require('./db/employees')
+const { viewAllRoles, addRole } = require('./db/roles')
 
 
 //added to have co-pilot help
@@ -60,8 +60,20 @@ const start = async () => {
             const newEmployee = await addEmployee();
             console.table(newEmployee)
         break;
+        case 'Add a role':
+            const newRole = await addRole();
+            console.table(newRole)
+        break;
+        case 'Update an employee role':
+            const updatedEmployee = await updateEmployee();
+            console.table(updatedEmployee)
+        break;
+        case 'Exit':
+            console.log('Goodbye');
+            process.exit();
     }
+    start(false)
 }
 
-
-start();
+start(true);
+ 
