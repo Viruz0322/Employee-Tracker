@@ -8,7 +8,7 @@ const viewAllEmployees = async () => {
         const employees = await db.query(
             'SELECT employee.id, employee.first_name, employee.last_name, role.title AS role, role.salary, department.name AS departmnet, CONCAT(manager.first_name, " ", manager.last_name) AS manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee AS manager ON employee.manager_id = manager.id;'
         );
-        return employees[0];
+        return employees;
     } catch (error) {
         console.error(error);
     }
@@ -105,6 +105,38 @@ const addEmployee = async () => {
     }
 
 //BONUS: DELETE EMPLOYEE
-
+async function deleteEmployee() {
+    try {
+        const employee = await viewAllEmployees();
+        const choices = employee.map((employee) => ({
+            value: employee.id,
+            name: `$${employee.first_name} ${employee.last_name}`,
+        }));
+        const answers = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'employeeId',
+                message: 'Which employee would you like to delete?',
+                choices,
+            },
+            {
+                type: 'confirm',
+                name: 'confirmDelete',
+                message: 'Are you sure you want to delete this employee?',
+            },
+        ]);
+        if (!answers.confirmDelete) {
+            console.log('Employee was not deleted,');
+            return;
+        }
+        const { employeeId } = answers;
+        await db.query('DELETE FROM employee WHERE id = ?', [employeeId]);
+        console.log('Employee was deleted successfully.');
+        const newEmployees = await viewAllEmployees();
+        return newEmployees;
+    } catch (error) {
+        console.error(error);
+    }
+}
 //Export this as an object that can be used 
-module.exports = { viewAllEmployees, addEmployee, updateEmployee }
+module.exports = { viewAllEmployees, addEmployee, updateEmployee, deleteEmployee };
