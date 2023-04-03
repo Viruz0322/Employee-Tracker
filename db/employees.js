@@ -19,15 +19,6 @@ const addEmployee = async () => {
         const roles = await viewAllRoles();
         const employees = await viewAllEmployees();
 
-        const roleChoices = roles.map((role) => ({
-            name: role.title,
-            value: role.id,
-        }));
-        const managerChoices = employees.map((employee) => ({
-            name: `${employee.first_name} ${employee.last_name}`,
-            value: employee.id,
-        }));
-
         const { firstName, lastName, roleId, managerId } = await inquirer.prompt([
             {
                 type: 'input',
@@ -40,15 +31,22 @@ const addEmployee = async () => {
                 message: 'Enter the last name of the new employee:'
             },
             {
-                type: 'input',
-                name: 'firstName',
-                message: 'Select the role for the new employee:'
+                type: 'list',
+                name: 'roleId',
+                message: 'Select the role for the new employee:',
+                choices: roles.map((role) =>({
+                    value:role.id,
+                    name: role.title,
+                })),
             },
             {
-                type: 'input',
-                name: 'firstName',
+                type: 'list',
+                name: 'managerId',
                 message: 'Select the manager for the new employee:',
-                choices: [...managerChoices, { name: 'None', value: null }],
+                choices: employees.map((employee) => ({
+                    value: employee.id,
+                    name: `${employee.first_name} ${employee.last_name}`,
+                })),
             },
         ]);
 
