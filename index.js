@@ -5,7 +5,7 @@ const { default: ListPrompt } = require("inquirer/lib/prompts/list");
 const db = require("./db/connection");
 
 //import our object (functions) to make everything more readable and easier to debug
-const { viewAllDepartments, addDepartment } = require('./db/departments')
+const { viewAllDepartments, addDepartment, deleteDepartment } = require('./db/departments')
 const { viewAllEmployees, addEmployee, updateEmployee } = require('./db/employees')
 const { viewAllRoles, addRole } = require('./db/roles')
 
@@ -31,6 +31,7 @@ const start = async () => {
                 'Add a role',
                 'Add an employee',
                 'Update an employee role',
+                'Delete a department',
                 'Exit'
             ]
         }
@@ -67,6 +68,10 @@ const start = async () => {
         case 'Update an employee role':
             const updatedEmployee = await updateEmployee();
             console.table(updatedEmployee)
+        break;
+        case 'Delete a department':
+            const deletedDepartment = await deleteDepartment();
+            console.table(deletedDepartment)
         break;
         case 'Exit':
             console.log('Goodbye');
