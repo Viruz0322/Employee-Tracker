@@ -3,71 +3,65 @@ const inquirer = require('inquirer');
 const { viewAllRoles} = require('./roles');
 
 
-async function viewAllEmployees() {
+const viewAllEmployees = async () => {
     try {
-        const employees = 
-            await db.promise().query('SELECT * FROM employee LEFT JOIN role ON role.id = employee.role_id')
-        return employees[0]
-    } catch (err) {
-        console.log(err)
+        const employees = await db.query(
+            'SELECT employee.id, employee.first_name, employee.last_name, role.title AS role, role.salary, department.name AS departmnet, CONCAT(manager.first_name, " ", manager.last_name) AS manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee AS manager ON employee.manager_id = manager.id;'
+        );
+        return employees[0];
+    } catch (error) {
+        console.error(error);
     }
-}
+};
 //ADD EMPLOYEE
 const addEmployee = async () => {
     try {
         const roles = await viewAllRoles();
         const employees = await viewAllEmployees();
-        const {
-            firstName,
-            lastName,
-            role,
-            manager
-        } = await inquirer.prompt([
+
+        const roleChoices = roles.map((role) => ({
+            name: role.title,
+            value: role.id,
+        }));
+        const managerChoices = employees.map((employee) => ({
+            name: `${employee.first_name} ${employee.last_name}`,
+            value: employee.id,
+        }));
+
+        const { firstName, lastName, roleId, managerId } = await inquirer.prompt([
             {
                 type: 'input',
                 name: 'firstName',
-                message: 'What is name first name of the employee?',
+                message: 'Enter the first name of the new employee:'
             },
             {
                 type: 'input',
                 name: 'lastName',
-                message: 'What is last name of the employee?',
+                message: 'Enter the last name of the new employee:'
             },
             {
-                type: 'list',
-                name: 'role',
-                message: 'What role is the employee?',
-                //.map creates a callback function to all roles bringing forth the rquired info
-                
-                choices: roles.map(role => {
-                    return {
-                        value: role.id,
-                        name: role.title
-                    };
-                    console.log(role.title);
-                }),
+                type: 'input',
+                name: 'firstName',
+                message: 'Select the role for the new employee:'
             },
             {
-                type: 'list',
-                name: 'manager',
-                choices: [
-                    //access the employees and create the callback function
-                    ...employees.map((e) => {
-                        return {
-                            value: e.id,
-                            name: `${e.first_name} ${e.last_name}`
-                        };
-                    })
-                ]
-            }
-        ])
-        await db.query(`INSERT into employee (first_name, last_name, role_id, manager_id) VALUES ("${firstName}", "${lastName}", "${role}", "${manager}") `)
-        const newEmployees = await viewAllEmployees()
-        return newEmployees
-    }catch (err) {
-        console.log(err)
+                type: 'input',
+                name: 'firstName',
+                message: 'Select the manager for the new employee:',
+                choices: [...managerChoices, { name: 'None', value: null }],
+            },
+        ]);
+
+        await db.query(
+            'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)',
+            [firstName, lastName, roleId, managerId]
+        );
+
+        console.log (` Successfully added employee ${firstName} ${lastName}.`)
+    } catch (error) {
+        console.error(error);
     }
-    }
+};
 
 //UPDATE EMPLOYEE
     const updateEmployee = async () => {
